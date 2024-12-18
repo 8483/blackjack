@@ -404,8 +404,6 @@ function generateTable() {
 }
 
 function generateInfo() {
-    let betUnits = trueCount >= 2 ? Math.floor(trueCount) - 1 : 1;
-
     let elapsedTime = Date.now() - startTime;
     let minutes = Math.round(elapsedTime / 60000);
 
@@ -419,7 +417,7 @@ function generateInfo() {
     let kellyCriterion = winProbability * (1 + 1) - 1;
 
     let betSizeKelly = kellyCriterion * bankroll;
-    let betSizeHalfKelly = Math.round(betSizeKelly / 2);
+    let betSizeHalfKelly = Math.ceil(betSizeKelly / 2);
 
     let html = `
         <div class="info" id="info" hx-swap-oob="true">
@@ -450,7 +448,7 @@ function generateInfo() {
 
             <div class="info-item">
                 <span>True</span>
-                <b style="color: ${color};">${trueCount}</b>
+                <b style="color: ${color};">${trueCount.toFixed(1)}</b>
             </div>
 
              <div class="info-item">
@@ -612,7 +610,7 @@ router.post("/high", (req, res) => {
     cardsSeen++;
     cardsleft--;
     runningCount--;
-    trueCount = (runningCount / (cardsleft / 52)).toFixed(1);
+    trueCount = runningCount / (cardsleft / 52);
 
     let html = `
         ${generateTable()}
@@ -628,7 +626,7 @@ router.post("/neutral", (req, res) => {
     cardsSeen++;
     cardsleft--;
     runningCount += 0;
-    trueCount = (runningCount / (cardsleft / 52)).toFixed(1);
+    trueCount = runningCount / (cardsleft / 52);
 
     let html = `
         ${generateTable()}
@@ -644,7 +642,7 @@ router.post("/low", (req, res) => {
     cardsSeen++;
     cardsleft--;
     runningCount++;
-    trueCount = (runningCount / (cardsleft / 52)).toFixed(1);
+    trueCount = runningCount / (cardsleft / 52);
 
     let html = `
         ${generateTable()}
@@ -677,7 +675,7 @@ router.post("/undo", (req, res) => {
             break;
     }
 
-    trueCount = (runningCount / (cardsleft / 52)).toFixed(1);
+    trueCount = runningCount / (cardsleft / 52);
 
     let html = `
         ${generateTable()}
