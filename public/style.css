@@ -1,0 +1,105 @@
+html,
+body {
+    margin: 0px;
+    font-family: "Roboto", sans-serif;
+    height: 100svh;
+    cursor: default;
+
+    user-select: none; /* Prevent text selection */
+    -webkit-user-select: none; /* For Safari */
+    -ms-user-select: none; /* For IE/Edge */
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.container {
+    height: 100svh;
+    display: grid;
+    grid-template-rows: 80% 20%;
+}
+
+table {
+    font-size: 30px;
+    padding: 10px;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    border: 1px solid #888;
+}
+
+table th,
+table td:first-child {
+    background: #ccc;
+}
+
+.footer {
+    display: grid;
+    grid-template-rows: 3fr 1fr 1fr;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+button {
+    font-size: 40px;
+    padding: 10px;
+}
+
+.info {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+
+    font-size: 40px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid gray;
+    padding: 10px;
+}
+
+.info-item span {
+    font-size: 20px;
+}
+
+.info-item b {
+    font-size: 50px;
+}
+
+.green {
+    background: limegreen;
+}
+
+.cyan {
+    background: dodgerblue;
+}
+
+.red {
+    background: red;
+}
+
+.black {
+    background: black;
+    color: white;
+}
+
+.white {
+    background: white;
+}
+
+.reset {
+    position: absolute;
+    top: 5px;
+    left: 20px;
+    font-size: 22px;
+    background: yellow;
+}
