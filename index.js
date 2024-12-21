@@ -15,6 +15,19 @@ let startTime = Date.now();
 
 let bankroll = 500;
 
+let counts = {
+    2: numberOfDecks * 4,
+    3: numberOfDecks * 4,
+    4: numberOfDecks * 4,
+    5: numberOfDecks * 4,
+    6: numberOfDecks * 4,
+    7: numberOfDecks * 4,
+    8: numberOfDecks * 4,
+    9: numberOfDecks * 4,
+    10: numberOfDecks * 4 * 4,
+    A: numberOfDecks * 4,
+};
+
 function getChartObjectRegular() {
     return {
         _8: {
@@ -403,75 +416,6 @@ function generateTable() {
     return html;
 }
 
-function generateInfo() {
-    let elapsedTime = Date.now() - startTime;
-    let minutes = Math.round(elapsedTime / 60000);
-
-    let color = trueCount >= 1 ? "limegreen" : trueCount < 0 ? "red" : "black";
-
-    let advantage = trueCount * 0.5 - 0.5;
-
-    let winProbability = (50 + advantage) / 100;
-
-    // fraction of bankroll to bet
-    let kellyCriterion = winProbability * (1 + 1) - 1;
-
-    let betSizeKelly = kellyCriterion * bankroll;
-    let betSizeHalfKelly = Math.ceil(betSizeKelly / 2);
-
-    let html = `
-        <div class="info" id="info" hx-swap-oob="true">
-            <div class="info-item">
-                <span>Seen</span>
-                <b>${cardsSeen}</b>
-            </div>
-
-            <div class="info-item">
-                <span>Left</span>
-                <b>${cardsleft}</b>
-            </div>
-
-            <div class="info-item">
-                <span>Pen%</span>
-                <b>${Math.round((cardsSeen / (numberOfDecks * 52)) * 100)}</b>
-            </div>
-
-            <div class="info-item">
-                <span>Mins</span>
-                <b>${minutes}</b>
-            </div>
-
-            <div class="info-item">
-                <span>Running</span>
-                <b>${runningCount}</b>
-            </div>
-
-            <div class="info-item">
-                <span>True</span>
-                <b style="color: ${color};">${trueCount.toFixed(1)}</b>
-            </div>
-
-             <div class="info-item">
-                <span>Adv%</span>
-                <b style="color: ${color};">${advantage.toFixed(1)}%</b>
-            </div>
-
-            <div class="info-item">
-                <span>bet</span>
-                <b>${betSizeHalfKelly}</b>
-            </div>
-
-            <div class="info-item">
-                <span>Insurance</span>
-                <b>${trueCount >= 3 ? "YES" : "NO"}</b>
-            </div>
-
-        </div>
-    `;
-
-    return html;
-}
-
 function generateTableRows(chartObject) {
     let html = "";
 
@@ -531,6 +475,100 @@ function generateTableCell(value) {
     return html;
 }
 
+function generateHistory() {
+    let last10Values = history.slice(-20);
+
+    let values = "";
+
+    last10Values.forEach((val) => {
+        values += `<span>${val}</span>`;
+    });
+
+    let html = `
+        <div class="history" id="history" hx-swap-oob="true">
+            ${values}
+        </div>
+    `;
+
+    return html;
+}
+
+function generateInfo() {
+    let elapsedTime = Date.now() - startTime;
+    let minutes = Math.round(elapsedTime / 60000);
+
+    let color = trueCount >= 1 ? "limegreen" : trueCount < 0 ? "red" : "black";
+
+    let advantage = trueCount * 0.5 - 0.5;
+
+    let winProbability = (50 + advantage) / 100;
+
+    // fraction of bankroll to bet
+    let kellyCriterion = winProbability * (1 + 1) - 1;
+
+    let betSizeKelly = kellyCriterion * bankroll;
+    let betSizeHalfKelly = Math.ceil(betSizeKelly / 2);
+
+    let high = counts["10"] + counts["A"];
+    let neutral = counts["7"] + counts["8"] + counts["9"];
+    let low = counts["2"] + counts["3"] + counts["4"] + counts["5"] + counts["6"];
+
+    let hr = Math.round((high / cardsleft) * 100);
+    let hn = Math.round((neutral / cardsleft) * 100);
+    let hl = Math.round((low / cardsleft) * 100);
+
+    let html = `
+        <div class="info" id="info" hx-swap-oob="true">
+            <div class="info-item">
+                <span>Seen</span>
+                <b>${cardsSeen}</b>
+            </div>
+
+            <div class="info-item">
+                <span>Left</span>
+                <b>${cardsleft}</b>
+            </div>
+
+            <div class="info-item">
+                <span>Pen%</span>
+                <b>${Math.round((cardsSeen / (numberOfDecks * 52)) * 100)}</b>
+            </div>
+
+            <div class="info-item">
+                <span>Mins</span>
+                <b>${minutes}</b>
+            </div>
+
+            <div class="info-item">
+                <span>Running</span>
+                <b>${runningCount.toFixed(0)}</b>
+            </div>
+
+            <div class="info-item">
+                <span>True</span>
+                <b style="color: ${color};">${trueCount.toFixed(1)}</b>
+            </div>
+
+             <div class="info-item">
+                <span>Adv%</span>
+                <b style="color: ${color};">${advantage.toFixed(1)}%</b>
+            </div>
+
+            <div class="info-item">
+                <span>hKelly</span>
+                <b>${betSizeHalfKelly}</b>
+            </div>
+
+            <div class="info-item">
+                <span>Insurance</span>
+                <b>${trueCount >= 3 ? "YES" : "NO"}</b>
+            </div>
+        </div>
+    `;
+
+    return html;
+}
+
 router.get("/", (req, res) => {
     let html = `
         <!DOCTYPE html>
@@ -553,48 +591,34 @@ router.get("/", (req, res) => {
                         RESET
                     </button>
 
+                    <button 
+                        class="undo"
+                        id="undo"
+                        hx-post="/undo" 
+                        hx-swap="none"
+                    >
+                        UNDO
+                    </button>
+
                    ${generateTable()}
                                   
                    <div class="footer">
                         <div class="buttons">
-                            <button 
-                                class="low"
-                                id="low"
-                                hx-post="/low" 
-                                hx-swap="none"
-                            >
-                                2, 3, 4, 5, 6
-                            </button>
-
-                             <button 
-                                class="neutral"
-                                id="neutral"
-                                hx-post="/neutral" 
-                                hx-swap="none"
-                            >
-                                7, 8, 9
-                            </button>
-
-                            <button 
-                                class="high"
-                                id="high"
-                                hx-post="/high" 
-                                hx-swap="none"
-                            >
-                                T, J, Q, K, A
-                            </button>
+                            <button class="2" id="2" hx-post="/count/2" hx-swap="none">2</button>
+                            <button class="3" id="3" hx-post="/count/3" hx-swap="none">3</button>
+                            <button class="4" id="4" hx-post="/count/4" hx-swap="none">4</button>
+                            <button class="5" id="5" hx-post="/count/5" hx-swap="none">5</button>
+                            <button class="6" id="6" hx-post="/count/6" hx-swap="none">6</button>
+                            <button class="7" id="7" hx-post="/count/7" hx-swap="none">7</button>
+                            <button class="8" id="8" hx-post="/count/8" hx-swap="none">8</button>
+                            <button class="9" id="9" hx-post="/count/9" hx-swap="none">9</button>
+                            <button class="10" id="10" hx-post="/count/10" hx-swap="none">10</button>
+                            <button class="A" id="A" hx-post="/count/A" hx-swap="none">A</button>
                         </div>
 
                         ${generateInfo()}                
 
-                        <button 
-                            class="undo"
-                            id="undo"
-                            hx-post="/undo" 
-                            hx-swap="none"
-                        >
-                            UNDO
-                        </button>
+                        ${generateHistory()}
                     </div>
                 </div>
             </body>
@@ -604,82 +628,55 @@ router.get("/", (req, res) => {
     res.send(html);
 });
 
-router.post("/high", (req, res) => {
-    history.push("high");
+let values = {
+    2: 0.5,
+    3: 1,
+    4: 1,
+    5: 1.5,
+    6: 1,
+    7: 0.5,
+    8: 0,
+    9: -0.5,
+    10: -1,
+    A: -1,
+};
+
+router.post("/count/:value", (req, res) => {
+    let { value } = req.params;
+
+    history.push(value);
+    counts[value]--;
 
     cardsSeen++;
     cardsleft--;
-    runningCount--;
+
+    runningCount += values[value];
     trueCount = runningCount / (cardsleft / 52);
 
     let html = `
         ${generateTable()}
         ${generateInfo()}
-    `;
-
-    res.send(html);
-});
-
-router.post("/neutral", (req, res) => {
-    history.push("neutral");
-
-    cardsSeen++;
-    cardsleft--;
-    runningCount += 0;
-    trueCount = runningCount / (cardsleft / 52);
-
-    let html = `
-        ${generateTable()}
-        ${generateInfo()}
-    `;
-
-    res.send(html);
-});
-
-router.post("/low", (req, res) => {
-    history.push("low");
-
-    cardsSeen++;
-    cardsleft--;
-    runningCount++;
-    trueCount = runningCount / (cardsleft / 52);
-
-    let html = `
-        ${generateTable()}
-        ${generateInfo()}
+        ${generateHistory()}
     `;
 
     res.send(html);
 });
 
 router.post("/undo", (req, res) => {
-    let last = history.pop();
+    let value = history.pop();
+    counts[value]++;
 
     cardsSeen--;
     cardsleft++;
 
-    switch (last) {
-        case "high":
-            runningCount++;
-            break;
-
-        case "neutral":
-            runningCount += 0;
-            break;
-
-        case "low":
-            runningCount--;
-            break;
-
-        default:
-            break;
-    }
+    runningCount -= values[value];
 
     trueCount = runningCount / (cardsleft / 52);
 
     let html = `
         ${generateTable()}
         ${generateInfo()}
+        ${generateHistory()}
     `;
 
     res.send(html);
@@ -695,9 +692,23 @@ router.post("/reset", (req, res) => {
     let html = `
         ${generateTable()}
         ${generateInfo()}
+        ${generateHistory()}
     `;
 
     startTime = Date.now();
+
+    counts = {
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0,
+        7: 0,
+        8: 0,
+        9: 0,
+        10: 0,
+        A: 0,
+    };
 
     res.send(html);
 });

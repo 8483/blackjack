@@ -39,12 +39,14 @@ table td:first-child {
 
 .footer {
     display: grid;
-    grid-template-rows: 3fr 1fr 1fr;
+    grid-template-rows: 10fr 1fr 1fr;
 }
 
 .buttons {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: repeat(5, 1fr);
 }
 
 button {
@@ -75,6 +77,33 @@ button {
     font-size: 50px;
 }
 
+.reset {
+    position: absolute;
+    top: 5px;
+    left: 20px;
+    font-size: 22px;
+    background: red;
+}
+
+.undo {
+    position: absolute;
+    top: 5px;
+    right: 20px;
+    font-size: 22px;
+    background: yellow;
+}
+
+.history {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    font-size: 30px;
+}
+
+.history span {
+    align-self: center;
+    justify-self: center;
+}
+
 .green {
     background: limegreen;
 }
@@ -94,12 +123,4 @@ button {
 
 .white {
     background: white;
-}
-
-.reset {
-    position: absolute;
-    top: 5px;
-    left: 20px;
-    font-size: 22px;
-    background: yellow;
 }
